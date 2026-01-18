@@ -1,6 +1,30 @@
 <h1>API Tests: User / Auth / Token</h1>
 
-<p>
+<div style="padding:12px; border:1px solid #ccc; margin-bottom:14px;">
+  <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+    <button id="run-all-btn">Run ALL tests</button>
+    <button id="reset-tests-btn">Reset results</button>
+
+    <div style="margin-left:10px;">
+      <b>Summary:</b>
+      Total: <span id="sum-total">0</span> |
+      Passed: <span id="sum-pass">0</span> |
+      Failed: <span id="sum-fail">0</span> |
+      Not run: <span id="sum-notrun">0</span>
+    </div>
+
+    <div style="margin-left:auto; font-size:12px; opacity:0.8;">
+      Last run: <span id="sum-last-run">never</span>
+    </div>
+  </div>
+
+  <div style="margin-top:10px;">
+    <b>Test list:</b>
+    <div id="test-list" style="font-family: monospace; font-size:12px; white-space:pre;"></div>
+  </div>
+</div>
+
+<p style="margin-top:0;">
   Page for tests of authentication and token validation.
   <br>1) Get token from <code>/user</code>
   <br>2) Use token to call protected <code>/discount</code>
@@ -47,7 +71,7 @@
 
     <tr><td colspan="2"><hr></td></tr>
 
-    <!-- PRACTICE PROJECT - NEGATIVE AUTH CASES -->
+    <!-- AUTH ERRORS -->
     <tr>
       <td><b>Auth errors (header problems)</b></td>
       <td></td>
@@ -103,7 +127,7 @@
 
     <tr><td colspan="2"><hr></td></tr>
 
-    <!-- INTERNAL TOKEN CHECKS (THIS HW) -->
+    <!-- INTERNAL TOKEN CHECKS -->
     <tr>
       <td><b>Internal token checks (claims validation)</b></td>
       <td style="font-size:12px; opacity:0.8;">
