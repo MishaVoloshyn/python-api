@@ -4,18 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c9ea07f3-7649-49be-9f21-45ed236af175" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/basics/13/controllers/order_controller.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/basics/13/controllers/ordertest_controller.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/basics/13/db.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/basics/13/models/request.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/basics/13/static/css/site.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/basics/13/views/_layout.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/basics/13/views/ordertest_index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basics/13/.htaccess" beforeDir="false" afterPath="$PROJECT_DIR$/basics/13/.htaccess" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basics/13/access_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/basics/13/access_manager.py" afterDir="false" />
-    </list>
+    <list default="true" id="c9ea07f3-7649-49be-9f21-45ed236af175" name="Changes" comment="Заголовки. Авторизація" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -82,12 +71,25 @@
       <option name="presentableId" value="Default" />
       <updated>1768758031912</updated>
       <workItem from="1768758033162" duration="43000" />
-      <workItem from="1768758394458" duration="4965000" />
+      <workItem from="1768758394458" duration="5476000" />
     </task>
+    <task id="LOCAL-00001" summary="Заголовки. Авторизація">
+      <option name="closed" value="true" />
+      <created>1768765190513</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1768765190513</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Заголовки. Авторизація" />
+    <option name="LAST_COMMIT_MESSAGE" value="Заголовки. Авторизація" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/python_api$access_manager.coverage" NAME="access_manager Coverage Results" MODIFIED="1768763248214" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/basics/13" />
