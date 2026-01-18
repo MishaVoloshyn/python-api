@@ -1,0 +1,61 @@
+<h1>Випробування API: User</h1>
+
+<p>
+  Кнопки нижче тестують помилки аутентифікації для <code>/discount</code>:
+  <br>— відсутній заголовок <b>Authorization</b>
+  <br>— неправильна схема (не Bearer)
+  <br>— закорочені (обрізані) дані токена
+  <br>— неправильні символи base64/base64url
+  <br>— невірний підпис (signature)
+  <br>— прострочений токен (expired)
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:220px">Метод</th>
+      <th>Результат</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><button id="user-get-btn">GET /user (отримати токен)</button></td>
+      <td id="user-get-result"></td>
+    </tr>
+    <tr>
+      <td><button id="discount-ok-btn">GET /discount (OK)</button></td>
+      <td id="discount-ok-result"></td>
+    </tr>
+
+    <tr><td colspan="2"><hr></td></tr>
+
+    <tr>
+      <td><button id="discount-missing-auth-btn">NO Authorization</button></td>
+      <td id="discount-missing-auth-result"></td>
+    </tr>
+    <tr>
+      <td><button id="discount-wrong-scheme-btn">Wrong scheme</button></td>
+      <td id="discount-wrong-scheme-result"></td>
+    </tr>
+    <tr>
+      <td><button id="discount-short-token-btn">Short token</button></td>
+      <td id="discount-short-token-result"></td>
+    </tr>
+    <tr>
+      <td><button id="discount-bad-base64-btn">Bad base64 symbols</button></td>
+      <td id="discount-bad-base64-result"></td>
+    </tr>
+    <tr>
+      <td><button id="discount-bad-signature-btn">Bad signature</button></td>
+      <td id="discount-bad-signature-result"></td>
+    </tr>
+    <tr>
+      <td><button id="discount-expired-btn">Expired token</button></td>
+      <td id="discount-expired-result"></td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="margin-top:12px">
+  <b>Поточний токен:</b> <code id="current-token">немає</code>
+</p>
