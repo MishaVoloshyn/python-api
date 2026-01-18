@@ -1,12 +1,6 @@
 {
   "orders": [
     {
-      "id": 1,
-      "title": "Order 1",
-      "price": 100,
-      "status": "new"
-    },
-    {
       "id": 2,
       "title": "Order 2",
       "price": 250,
@@ -14,15 +8,15 @@
     },
     {
       "id": 3,
-      "title": "From test",
-      "price": 777,
-      "status": "test"
+      "title": "New Order",
+      "price": 999,
+      "status": "new"
     },
     {
       "id": 4,
-      "title": "From test",
-      "price": 777,
-      "status": "test"
+      "title": "New Order",
+      "price": 999,
+      "status": "new"
     }
   ]
 }
