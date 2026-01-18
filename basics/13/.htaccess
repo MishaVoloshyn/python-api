@@ -1,5 +1,7 @@
 Options +ExecCGI
 AddHandler cgi-script .py
 
+CGIPassAuth On
+
 RewriteEngine On
-RewriteRule ^.*$ access_manager.py [L,QSA]
+RewriteRule .* access_manager.py?htctrl=1 [L,QSA]

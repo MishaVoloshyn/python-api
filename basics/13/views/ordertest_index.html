@@ -1,0 +1,37 @@
+<h1>Випробування API: Order</h1>
+
+<p>
+  <b>GET</b> і <b>POST</b> надсилають <code>Custom-Header</code><br>
+  <b>PUT/PATCH/DELETE</b> не надсилають <code>Custom-Header</code> → сервер повертає <b>403</b>
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Метод</th>
+      <th>Результат</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><button id="api-order-get-btn">GET order</button></td>
+      <td id="api-order-get-result"></td>
+    </tr>
+    <tr>
+      <td><button id="api-order-post-btn">POST order</button></td>
+      <td id="api-order-post-result"></td>
+    </tr>
+    <tr>
+      <td><button id="api-order-put-btn">PUT order</button></td>
+      <td id="api-order-put-result"></td>
+    </tr>
+    <tr>
+      <td><button id="api-order-patch-btn">PATCH order</button></td>
+      <td id="api-order-patch-result"></td>
+    </tr>
+    <tr>
+      <td><button id="api-order-delete-btn">DELETE order</button></td>
+      <td id="api-order-delete-result"></td>
+    </tr>
+  </tbody>
+</table>
