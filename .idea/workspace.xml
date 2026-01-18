@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c9ea07f3-7649-49be-9f21-45ed236af175" name="Changes" comment="Практика. Робота з проєктом">
+    <list default="true" id="c9ea07f3-7649-49be-9f21-45ed236af175" name="Changes" comment="Авторизація. Токени">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basics/13/static/js/site.js" beforeDir="false" afterPath="$PROJECT_DIR$/basics/13/static/js/site.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/basics/13/views/usertest_index.html" beforeDir="false" afterPath="$PROJECT_DIR$/basics/13/views/usertest_index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/basics/13/controllers/discount_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/basics/13/controllers/discount_controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/basics/13/controllers/user_controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/basics/13/controllers/user_controller.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,7 +75,7 @@
       <option name="presentableId" value="Default" />
       <updated>1768758031912</updated>
       <workItem from="1768758033162" duration="43000" />
-      <workItem from="1768758394458" duration="9349000" />
+      <workItem from="1768758394458" duration="10384000" />
     </task>
     <task id="LOCAL-00001" summary="Заголовки. Авторизація">
       <option name="closed" value="true" />
@@ -117,7 +117,15 @@
       <option name="project" value="LOCAL" />
       <updated>1768769374448</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Авторизація. Токени">
+      <option name="closed" value="true" />
+      <created>1768775378175</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1768775378175</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -129,7 +137,8 @@
     <MESSAGE value="Заголовки. Авторизація фото" />
     <MESSAGE value="REST" />
     <MESSAGE value="Практика. Робота з проєктом" />
-    <option name="LAST_COMMIT_MESSAGE" value="Практика. Робота з проєктом" />
+    <MESSAGE value="Авторизація. Токени" />
+    <option name="LAST_COMMIT_MESSAGE" value="Авторизація. Токени" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/python_api$access_manager.coverage" NAME="access_manager Coverage Results" MODIFIED="1768763248214" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/basics/13" />
