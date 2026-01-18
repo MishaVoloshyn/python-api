@@ -13,7 +13,7 @@
 <table>
   <thead>
     <tr>
-      <th style="width:220px">Метод</th>
+      <th style="width:260px">Метод</th>
       <th>Результат</th>
     </tr>
   </thead>
@@ -22,6 +22,32 @@
       <td><button id="user-get-btn">GET /user (отримати токен)</button></td>
       <td id="user-get-result"></td>
     </tr>
+
+    <tr>
+      <td>
+        <b>Token Header (з відповіді)</b>
+        <div style="font-size:12px; opacity:0.8;">(те, що прийшло у відповіді сервера)</div>
+      </td>
+      <td id="token-header-result"><pre>немає</pre></td>
+    </tr>
+
+    <tr>
+      <td>
+        <b>Token Header (з токена)</b>
+        <div style="font-size:12px; opacity:0.8;">(декодуємо першу частину JWT)</div>
+      </td>
+      <td id="token-header-decoded"><pre>немає</pre></td>
+    </tr>
+
+    <tr>
+      <td>
+        <b>Поточний токен</b>
+      </td>
+      <td><code id="current-token">немає</code></td>
+    </tr>
+
+    <tr><td colspan="2"><hr></td></tr>
+
     <tr>
       <td><button id="discount-ok-btn">GET /discount (OK)</button></td>
       <td id="discount-ok-result"></td>
@@ -55,7 +81,3 @@
     </tr>
   </tbody>
 </table>
-
-<p style="margin-top:12px">
-  <b>Поточний токен:</b> <code id="current-token">немає</code>
-</p>
