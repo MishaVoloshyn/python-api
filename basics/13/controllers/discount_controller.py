@@ -4,19 +4,29 @@ import time
 import base64
 import hmac
 import hashlib
+import re
 
 
 class DiscountController:
     """
     GET /discount -> requires Authorization: Bearer <token>
 
-    JWT validation includes Step 8:
-    If JOSE header contains "cty":"JWT" => nested JWT.
-    Then payload is another JWT string; validate it again from Step 1 (recursively).
+    Includes:
+    - signature check
+    - exp check
+    - nested JWT Step 8 (cty=JWT)
+    - internal claims validation:
+        sub must be UUID
+        iss must be "Server-KN-P-221"
+        must have at least one of: name OR email
+        if email exists -> must be valid email format
     """
 
     SECRET = b"super-secret-key-13"
     MAX_NESTING = 3
+
+    UUID_RE = re.compile(r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+    EMAIL_RE = re.compile(r"^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$")
 
     def __init__(self, request: CgiRequest):
         self.request = request
@@ -62,6 +72,7 @@ class DiscountController:
             "data": {
                 "discountPercent": 7,
                 "forUser": payload.get("name"),
+                "email": payload.get("email"),
                 "aud": payload.get("aud"),
                 "exp": payload.get("exp")
             }
@@ -94,7 +105,6 @@ class DiscountController:
         except Exception:
             return False, "header JSON invalid"
 
-        # verify signature first
         if header.get("alg") != "HS256":
             return False, "unsupported alg (expected HS256)"
 
@@ -113,7 +123,6 @@ class DiscountController:
             if not ok:
                 return False, f"nested JWT invalid: {info}"
 
-            # mark nesting count
             info["nesting"] = info.get("nesting", 0) + 1
             return True, info
 
@@ -135,7 +144,39 @@ class DiscountController:
         if exp < now:
             return False, "token expired"
 
+        # ---- Internal claims validation (this HW) ----
+        ok, msg = self._validate_claims(payload)
+        if not ok:
+            return False, msg
+
         return True, {"header": header, "payload": payload, "nesting": 0}
+
+    def _validate_claims(self, payload: dict):
+        # sub UUID
+        sub = payload.get("sub")
+        if not isinstance(sub, str) or not self.UUID_RE.match(sub):
+            return False, "invalid sub (must be UUID)"
+
+        # iss exact
+        iss = payload.get("iss")
+        if iss != "Server-KN-P-221":
+            return False, "invalid iss (must be 'Server-KN-P-221')"
+
+        # name or email
+        name = payload.get("name")
+        email = payload.get("email")
+
+        has_name = isinstance(name, str) and name.strip() != ""
+        has_email = isinstance(email, str) and email.strip() != ""
+
+        if not (has_name or has_email):
+            return False, "invalid payload: must contain at least one of 'name' or 'email'"
+
+        # email format if present
+        if has_email and not self.EMAIL_RE.match(email.strip()):
+            return False, "invalid email format"
+
+        return True, "OK"
 
     def _sign(self, h64: str, p64: str) -> str:
         signing_input = f"{h64}.{p64}".encode("ascii")

@@ -9,9 +9,18 @@ import hashlib
 class UserController:
     """
     GET /user
-    GET /user?mode=expired
-    GET /user?mode=nested          -> returns outer JWT with header cty=JWT and payload=inner JWT
-    GET /user?mode=nested_expired  -> nested, but inner token expired
+    Modes:
+      ?mode=expired
+      ?mode=nested
+      ?mode=nested_expired
+
+    Internal validation test tokens:
+      ?mode=bad_sub
+      ?mode=bad_iss
+      ?mode=no_name_email
+      ?mode=bad_email
+      ?mode=email_only
+      ?mode=name_only
     """
 
     SECRET = b"super-secret-key-13"
@@ -27,16 +36,13 @@ class UserController:
 
         mode = (self.request.query_params.get("mode") or "").lower()
 
-        if mode == "nested" or mode == "nested_expired":
-            token, inner, hdr_outer, hdr_inner, payload_inner = self._make_nested_token(expired_inner=(mode == "nested_expired"))
+        if mode in ("nested", "nested_expired"):
+            token, inner, hdr_outer, hdr_inner, payload_inner = self._make_nested_token(
+                expired_inner=(mode == "nested_expired")
+            )
             response = {
                 "status": {"is_ok": True, "code": 200, "message": "OK"},
-                "meta": {
-                    "service": "User API: authentication",
-                    "requestMethod": method,
-                    "serverTime": time.time(),
-                    "mode": mode
-                },
+                "meta": {"service": "User API: authentication", "requestMethod": method, "serverTime": time.time(), "mode": mode},
                 "data": {
                     "token": token,
                     "outerHeader": hdr_outer,
@@ -48,9 +54,9 @@ class UserController:
             self._json(response)
             return
 
-        # normal / expired
         now = int(time.time())
         exp = now + 3600
+
         if mode == "expired":
             exp = now - 30
 
@@ -65,21 +71,34 @@ class UserController:
             "email": "change.me@fake.net",
         }
 
+        # --- internal validation bad cases ---
+        if mode == "bad_sub":
+            payload["sub"] = "not-a-uuid"
+
+        if mode == "bad_iss":
+            payload["iss"] = "Server-WRONG"
+
+        if mode == "no_name_email":
+            payload.pop("name", None)
+            payload.pop("email", None)
+
+        if mode == "bad_email":
+            payload["email"] = "wrong-email-format"
+
+        if mode == "email_only":
+            payload.pop("name", None)
+            payload["email"] = "only.email@fake.net"
+
+        if mode == "name_only":
+            payload.pop("email", None)
+            payload["name"] = "Only Name"
+
         token = self._jwt_encode(header, payload)
 
         response = {
             "status": {"is_ok": True, "code": 200, "message": "OK"},
-            "meta": {
-                "service": "User API: authentication",
-                "requestMethod": method,
-                "serverTime": time.time(),
-                "mode": mode
-            },
-            "data": {
-                "token": token,
-                "header": header,
-                "payload": payload
-            }
+            "meta": {"service": "User API: authentication", "requestMethod": method, "serverTime": time.time(), "mode": mode},
+            "data": {"token": token, "header": header, "payload": payload}
         }
 
         self._json(response)
@@ -87,7 +106,6 @@ class UserController:
     # ---------------- JWT creation ----------------
 
     def _make_nested_token(self, expired_inner: bool):
-        # inner token (normal JWT)
         now = int(time.time())
         exp_inner = (now - 30) if expired_inner else (now + 3600)
 
@@ -103,9 +121,8 @@ class UserController:
         }
         inner_token = self._jwt_encode(header_inner, payload_inner)
 
-        # outer token: header has cty=JWT, payload is inner_token as STRING (not JSON)
         header_outer = {"alg": "HS256", "typ": "JWT", "cty": "JWT"}
-        outer_token = self._jwt_encode(header_outer, inner_token)  # payload is str
+        outer_token = self._jwt_encode(header_outer, inner_token)
 
         return outer_token, inner_token, header_outer, header_inner, payload_inner
 
@@ -113,7 +130,6 @@ class UserController:
         return base64.urlsafe_b64encode(b).decode("ascii").rstrip("=")
 
     def _jwt_encode(self, header: dict, payload):
-        # payload can be dict (JSON) OR string (nested JWT case)
         h = self._b64url_encode(json.dumps(header, separators=(",", ":"), ensure_ascii=False).encode("utf-8"))
 
         if isinstance(payload, dict):

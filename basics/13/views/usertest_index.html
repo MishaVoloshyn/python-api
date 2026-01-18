@@ -1,83 +1,145 @@
-<h1>Випробування API: User</h1>
+<h1>API Tests: User / Auth / Token</h1>
 
 <p>
-  Кнопки нижче тестують помилки аутентифікації для <code>/discount</code>:
-  <br>— відсутній заголовок <b>Authorization</b>
-  <br>— неправильна схема (не Bearer)
-  <br>— закорочені (обрізані) дані токена
-  <br>— неправильні символи base64/base64url
-  <br>— невірний підпис (signature)
-  <br>— прострочений токен (expired)
+  Page for tests of authentication and token validation.
+  <br>1) Get token from <code>/user</code>
+  <br>2) Use token to call protected <code>/discount</code>
+  <br>3) Check negative cases and screenshots
 </p>
 
 <table>
   <thead>
     <tr>
-      <th style="width:260px">Метод</th>
-      <th>Результат</th>
+      <th style="width:280px">Action</th>
+      <th>Result</th>
     </tr>
   </thead>
+
   <tbody>
+    <!-- BASIC TOKEN -->
     <tr>
-      <td><button id="user-get-btn">GET /user (отримати токен)</button></td>
+      <td><button id="user-get-btn">GET /user (normal token)</button></td>
       <td id="user-get-result"></td>
     </tr>
 
     <tr>
-      <td>
-        <b>Token Header (з відповіді)</b>
-        <div style="font-size:12px; opacity:0.8;">(те, що прийшло у відповіді сервера)</div>
-      </td>
-      <td id="token-header-result"><pre>немає</pre></td>
+      <td><b>Token Header (from response)</b></td>
+      <td id="token-header-result"><pre>none</pre></td>
     </tr>
 
     <tr>
-      <td>
-        <b>Token Header (з токена)</b>
-        <div style="font-size:12px; opacity:0.8;">(декодуємо першу частину JWT)</div>
-      </td>
-      <td id="token-header-decoded"><pre>немає</pre></td>
+      <td><b>Token Header (decoded from token)</b></td>
+      <td id="token-header-decoded"><pre>none</pre></td>
     </tr>
 
     <tr>
-      <td>
-        <b>Поточний токен</b>
-      </td>
-      <td><code id="current-token">немає</code></td>
+      <td><b>Current token</b></td>
+      <td><code id="current-token">none</code></td>
     </tr>
 
     <tr><td colspan="2"><hr></td></tr>
 
+    <!-- DISCOUNT OK -->
     <tr>
-      <td><button id="discount-ok-btn">GET /discount (OK)</button></td>
+      <td><button id="discount-ok-btn">GET /discount (OK with current token)</button></td>
       <td id="discount-ok-result"></td>
     </tr>
 
     <tr><td colspan="2"><hr></td></tr>
 
+    <!-- PRACTICE PROJECT - NEGATIVE AUTH CASES -->
     <tr>
-      <td><button id="discount-missing-auth-btn">NO Authorization</button></td>
+      <td><b>Auth errors (header problems)</b></td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td><button id="discount-missing-auth-btn">NO Authorization header</button></td>
       <td id="discount-missing-auth-result"></td>
     </tr>
+
     <tr>
-      <td><button id="discount-wrong-scheme-btn">Wrong scheme</button></td>
+      <td><button id="discount-wrong-scheme-btn">Wrong scheme (Token ...)</button></td>
       <td id="discount-wrong-scheme-result"></td>
     </tr>
+
     <tr>
-      <td><button id="discount-short-token-btn">Short token</button></td>
+      <td><button id="discount-short-token-btn">Short token (2 parts only)</button></td>
       <td id="discount-short-token-result"></td>
     </tr>
+
     <tr>
       <td><button id="discount-bad-base64-btn">Bad base64 symbols</button></td>
       <td id="discount-bad-base64-result"></td>
     </tr>
+
     <tr>
       <td><button id="discount-bad-signature-btn">Bad signature</button></td>
       <td id="discount-bad-signature-result"></td>
     </tr>
+
     <tr>
       <td><button id="discount-expired-btn">Expired token</button></td>
       <td id="discount-expired-result"></td>
     </tr>
+
+    <tr><td colspan="2"><hr></td></tr>
+
+    <!-- JWT VALIDATION - NESTED -->
+    <tr>
+      <td><b>JWT validation: Nested JWT (cty=JWT)</b></td>
+      <td></td>
+    </tr>
+
+    <tr>
+      <td><button id="nested-ok-btn">Nested token OK -> /discount</button></td>
+      <td id="nested-ok-result"></td>
+    </tr>
+
+    <tr>
+      <td><button id="nested-expired-btn">Nested token expired -> /discount</button></td>
+      <td id="nested-expired-result"></td>
+    </tr>
+
+    <tr><td colspan="2"><hr></td></tr>
+
+    <!-- INTERNAL TOKEN CHECKS (THIS HW) -->
+    <tr>
+      <td><b>Internal token checks (claims validation)</b></td>
+      <td style="font-size:12px; opacity:0.8;">
+        sub=UUID, iss="Server-KN-P-221", name or email required, email format if present
+      </td>
+    </tr>
+
+    <tr>
+      <td><button id="claim-bad-sub-btn">bad_sub -> /discount (403)</button></td>
+      <td id="claim-bad-sub-result"></td>
+    </tr>
+
+    <tr>
+      <td><button id="claim-bad-iss-btn">bad_iss -> /discount (403)</button></td>
+      <td id="claim-bad-iss-result"></td>
+    </tr>
+
+    <tr>
+      <td><button id="claim-no-name-email-btn">no_name_email -> /discount (403)</button></td>
+      <td id="claim-no-name-email-result"></td>
+    </tr>
+
+    <tr>
+      <td><button id="claim-bad-email-btn">bad_email -> /discount (403)</button></td>
+      <td id="claim-bad-email-result"></td>
+    </tr>
+
+    <tr>
+      <td><button id="claim-email-only-btn">email_only -> /discount (200)</button></td>
+      <td id="claim-email-only-result"></td>
+    </tr>
+
+    <tr>
+      <td><button id="claim-name-only-btn">name_only -> /discount (200)</button></td>
+      <td id="claim-name-only-result"></td>
+    </tr>
+
   </tbody>
 </table>

@@ -1,10 +1,7 @@
 let CURRENT_TOKEN = null;
-let EXPIRED_TOKEN = null;
 
 document.addEventListener("DOMContentLoaded", () => {
-  initOrderTests();
-  initRestTests();
-  initUserTests();
+  initUserTestButtons();
 });
 
 function pretty(obj) {
@@ -21,10 +18,9 @@ function renderJson(td, text) {
 }
 
 /* =========================
-   HELPERS: base64url decode header from JWT
+   Base64url helpers (decode JWT header)
 ========================= */
 function b64urlToText(b64url) {
-  // replace URL-safe chars, pad, decode
   let s = b64url.replace(/-/g, "+").replace(/_/g, "/");
   const pad = s.length % 4;
   if (pad) s += "=".repeat(4 - pad);
@@ -47,158 +43,48 @@ function decodeJwtHeader(token) {
 function setCurrentToken(token) {
   CURRENT_TOKEN = token;
   const el = document.getElementById("current-token");
-  if (el) el.textContent = token ? token : "немає";
+  if (el) el.textContent = token ? token : "none";
+
+  const decoded = decodeJwtHeader(token);
+  const hdrDecodedEl = document.getElementById("token-header-decoded");
+  if (hdrDecodedEl) hdrDecodedEl.innerHTML = decoded ? `<pre>${pretty(decoded)}</pre>` : "<pre>none</pre>";
 }
 
-function setTokenHeaderFromResponse(headerObj) {
+function setHeaderFromResponse(headerObj) {
   const el = document.getElementById("token-header-result");
   if (!el) return;
-  if (!headerObj) {
-    el.innerHTML = "<pre>немає</pre>";
-    return;
-  }
-  el.innerHTML = `<pre>${pretty(headerObj)}</pre>`;
-}
-
-function setTokenHeaderDecoded(headerObj) {
-  const el = document.getElementById("token-header-decoded");
-  if (!el) return;
-  if (!headerObj) {
-    el.innerHTML = "<pre>немає</pre>";
-    return;
-  }
-  el.innerHTML = `<pre>${pretty(headerObj)}</pre>`;
+  el.innerHTML = headerObj ? `<pre>${pretty(headerObj)}</pre>` : "<pre>none</pre>";
 }
 
 /* =========================
-   HEADERS TEST (ordertest)
+   API calls
 ========================= */
-function initOrderTests() {
-  const methods = ["get", "post", "put", "patch", "delete"];
-  for (const m of methods) {
-    const btn = document.getElementById(`api-order-${m}-btn`);
-    if (btn) btn.addEventListener("click", orderBtnClick);
-  }
+async function apiGetJson(url) {
+  const res = await fetch(url);
+  const text = await res.text();
+  try { return { ok: true, json: JSON.parse(text), text }; }
+  catch { return { ok: false, json: null, text }; }
 }
 
-async function orderBtnClick(e) {
-  const [_, apiName, apiMethod] = e.target.id.split("-");
-  const td = document.getElementById(`api-${apiName}-${apiMethod}-result`);
-  if (!td) return;
-
-  const base = document.body.dataset.base || "";
-  const method = apiMethod.toUpperCase();
-
-  const sendHeader = (method === "GET" || method === "POST");
-  const headers = {};
-  if (sendHeader) headers["Custom-Header"] = "AnyValue123";
-
-  try {
-    const res = await fetch(`${base}/order`, { method, headers });
-    const text = await res.text();
-    renderJson(td, text);
-  } catch (err) {
-    td.innerHTML = `<pre>JS error: ${err}</pre>`;
-  }
+async function apiGetDiscount(authHeader) {
+  const res = await fetch(discountUrl(), {
+    method: "GET",
+    headers: authHeader ? authHeader : {}
+  });
+  return await res.text();
 }
 
-/* =========================
-   REST TEST (resttest)
-========================= */
-function initRestTests() {
-  const ids = [
-    "rest-order-get-btn",
-    "rest-order-getone-btn",
-    "rest-order-post-btn",
-    "rest-order-put-btn",
-    "rest-order-patch-btn",
-    "rest-order-delete-btn",
-  ];
-
-  for (const id of ids) {
-    const btn = document.getElementById(id);
-    if (btn) btn.addEventListener("click", restBtnClick);
-  }
-
-  const postBody = { title: "New Order", price: 999, status: "new" };
-  const putBody = { title: "Replaced Order", price: 555, status: "paid" };
-  const patchBody = { status: "patched" };
-
-  const postPre = document.getElementById("rest-post-body");
-  const putPre = document.getElementById("rest-put-body");
-  const patchPre = document.getElementById("rest-patch-body");
-
-  if (postPre) postPre.textContent = pretty(postBody);
-  if (putPre) putPre.textContent = pretty(putBody);
-  if (patchPre) patchPre.textContent = pretty(patchBody);
+function baseUrl() {
+  return document.body.dataset.base || "/python-api/basics/13";
 }
 
-async function restBtnClick(e) {
-  const base = document.body.dataset.base || "";
-  const id = e.target.id;
-
-  let method = "GET";
-  let url = `${base}/order`;
-  let body = null;
-
-  if (id === "rest-order-getone-btn") {
-    method = "GET";
-    url = `${base}/order?id=1`;
-  }
-  if (id === "rest-order-post-btn") {
-    method = "POST";
-    url = `${base}/order`;
-    body = { title: "New Order", price: 999, status: "new" };
-  }
-  if (id === "rest-order-put-btn") {
-    method = "PUT";
-    url = `${base}/order?id=1`;
-    body = { title: "Replaced Order", price: 555, status: "paid" };
-  }
-  if (id === "rest-order-patch-btn") {
-    method = "PATCH";
-    url = `${base}/order?id=1`;
-    body = { status: "patched" };
-  }
-  if (id === "rest-order-delete-btn") {
-    method = "DELETE";
-    url = `${base}/order?id=1`;
-  }
-
-  const resultId = id.replace("-btn", "-result");
-  const td = document.getElementById(resultId);
-  if (!td) return;
-
-  const headers = { "Content-Type": "application/json" };
-
-  try {
-    const res = await fetch(url, { method, headers, body: body ? JSON.stringify(body) : null });
-    const text = await res.text();
-    renderJson(td, text);
-  } catch (err) {
-    td.innerHTML = `<pre>JS error: ${err}</pre>`;
-  }
+function userUrl(mode) {
+  const b = baseUrl();
+  return mode ? `${b}/user?mode=${encodeURIComponent(mode)}` : `${b}/user`;
 }
 
-/* =========================
-   USER TEST (usertest)  <-- ЭТО ДЗ
-========================= */
-function initUserTests() {
-  const ids = [
-    "user-get-btn",
-    "discount-ok-btn",
-    "discount-missing-auth-btn",
-    "discount-wrong-scheme-btn",
-    "discount-short-token-btn",
-    "discount-bad-base64-btn",
-    "discount-bad-signature-btn",
-    "discount-expired-btn",
-  ];
-
-  for (const id of ids) {
-    const btn = document.getElementById(id);
-    if (btn) btn.addEventListener("click", userTestClick);
-  }
+function discountUrl() {
+  return `${baseUrl()}/discount`;
 }
 
 function flipLastChar(token) {
@@ -208,112 +94,213 @@ function flipLastChar(token) {
   return token.slice(0, -1) + newLast;
 }
 
-async function ensureToken(base) {
-  if (CURRENT_TOKEN) return;
+/* =========================
+   Buttons init
+========================= */
+function initUserTestButtons() {
+  const map = [
+    "user-get-btn",
+    "discount-ok-btn",
+    "discount-missing-auth-btn",
+    "discount-wrong-scheme-btn",
+    "discount-short-token-btn",
+    "discount-bad-base64-btn",
+    "discount-bad-signature-btn",
+    "discount-expired-btn",
 
-  const r = await fetch(`${base}/user`);
-  const t = await r.text();
+    "nested-ok-btn",
+    "nested-expired-btn",
 
-  try {
-    const j = JSON.parse(t);
-    const token = j?.data?.token;
-    const headerFromResponse = j?.data?.header;
+    "claim-bad-sub-btn",
+    "claim-bad-iss-btn",
+    "claim-no-name-email-btn",
+    "claim-bad-email-btn",
+    "claim-email-only-btn",
+    "claim-name-only-btn"
+  ];
 
-    if (token) {
-      setCurrentToken(token);
-      setTokenHeaderFromResponse(headerFromResponse);
-
-      const decodedHeader = decodeJwtHeader(token);
-      setTokenHeaderDecoded(decodedHeader);
-    }
-  } catch {}
+  for (const id of map) {
+    const btn = document.getElementById(id);
+    if (btn) btn.addEventListener("click", onClick);
+  }
 }
 
-async function userTestClick(e) {
-  const base = document.body.dataset.base || "";
+/* =========================
+   Main click handler
+========================= */
+async function onClick(e) {
   const id = e.target.id;
-
-  const resultId = id.replace("-btn", "-result");
-  const td = document.getElementById(resultId);
+  const td = document.getElementById(id.replace("-btn", "-result"));
   if (!td) return;
 
   try {
-    // GET /user -> store token + show header info
+    // 1) GET /user normal
     if (id === "user-get-btn") {
-      const res = await fetch(`${base}/user`);
-      const text = await res.text();
-      renderJson(td, text);
+      const r = await apiGetJson(userUrl());
+      renderJson(td, r.text);
 
-      try {
-        const j = JSON.parse(text);
-        const token = j?.data?.token;
-        const headerFromResponse = j?.data?.header;
-
+      if (r.ok) {
+        const token = r.json?.data?.token;
+        const header = r.json?.data?.header;
         if (token) {
           setCurrentToken(token);
-          setTokenHeaderFromResponse(headerFromResponse);
-
-          const decodedHeader = decodeJwtHeader(token);
-          setTokenHeaderDecoded(decodedHeader);
+          setHeaderFromResponse(header);
         }
-      } catch {}
+      }
       return;
     }
 
-    // For tests that need token: auto get it
-    if (id === "discount-ok-btn" ||
-        id === "discount-short-token-btn" ||
-        id === "discount-bad-base64-btn" ||
-        id === "discount-bad-signature-btn") {
-      await ensureToken(base);
-    }
-
-    let headers = {};
-    const url = `${base}/discount`;
-
+    // 2) /discount OK with current token
     if (id === "discount-ok-btn") {
-      headers = { "Authorization": `Bearer ${CURRENT_TOKEN || ""}` };
+      if (!CURRENT_TOKEN) {
+        // auto get normal token
+        const r = await apiGetJson(userUrl());
+        if (r.ok && r.json?.data?.token) {
+          setCurrentToken(r.json.data.token);
+          setHeaderFromResponse(r.json?.data?.header);
+        }
+      }
+      const text = await apiGetDiscount({ Authorization: "Bearer " + (CURRENT_TOKEN || "") });
+      renderJson(td, text);
+      return;
     }
 
+    // 3) Missing Authorization header
     if (id === "discount-missing-auth-btn") {
-      headers = {};
+      const text = await apiGetDiscount({});
+      renderJson(td, text);
+      return;
     }
 
+    // 4) Wrong scheme
     if (id === "discount-wrong-scheme-btn") {
-      headers = { "Authorization": `Token ${CURRENT_TOKEN || ""}` };
+      if (!CURRENT_TOKEN) {
+        const r = await apiGetJson(userUrl());
+        if (r.ok && r.json?.data?.token) setCurrentToken(r.json.data.token);
+      }
+      const text = await apiGetDiscount({ Authorization: "Token " + (CURRENT_TOKEN || "") });
+      renderJson(td, text);
+      return;
     }
 
+    // 5) Short token
     if (id === "discount-short-token-btn") {
+      if (!CURRENT_TOKEN) {
+        const r = await apiGetJson(userUrl());
+        if (r.ok && r.json?.data?.token) setCurrentToken(r.json.data.token);
+      }
       const shortToken = (CURRENT_TOKEN || "").split(".").slice(0, 2).join(".");
-      headers = { "Authorization": `Bearer ${shortToken}` };
+      const text = await apiGetDiscount({ Authorization: "Bearer " + shortToken });
+      renderJson(td, text);
+      return;
     }
 
+    // 6) Bad base64 symbols
     if (id === "discount-bad-base64-btn") {
+      if (!CURRENT_TOKEN) {
+        const r = await apiGetJson(userUrl());
+        if (r.ok && r.json?.data?.token) setCurrentToken(r.json.data.token);
+      }
       const bad = (CURRENT_TOKEN || "") + "!";
-      headers = { "Authorization": `Bearer ${bad}` };
+      const text = await apiGetDiscount({ Authorization: "Bearer " + bad });
+      renderJson(td, text);
+      return;
     }
 
+    // 7) Bad signature
     if (id === "discount-bad-signature-btn") {
+      if (!CURRENT_TOKEN) {
+        const r = await apiGetJson(userUrl());
+        if (r.ok && r.json?.data?.token) setCurrentToken(r.json.data.token);
+      }
       const badSig = flipLastChar(CURRENT_TOKEN || "");
-      headers = { "Authorization": `Bearer ${badSig}` };
+      const text = await apiGetDiscount({ Authorization: "Bearer " + badSig });
+      renderJson(td, text);
+      return;
     }
 
+    // 8) Expired token
     if (id === "discount-expired-btn") {
-      // ask server for expired token
-      const resTok = await fetch(`${base}/user?mode=expired`);
-      const tokText = await resTok.text();
-      try {
-        const j = JSON.parse(tokText);
-        EXPIRED_TOKEN = j?.data?.token;
-      } catch {}
-      headers = { "Authorization": `Bearer ${EXPIRED_TOKEN || ""}` };
+      const r = await apiGetJson(userUrl("expired"));
+      renderJson(td, r.text);
+      let tok = null;
+      if (r.ok) tok = r.json?.data?.token;
+      const text = await apiGetDiscount({ Authorization: "Bearer " + (tok || "") });
+      // show discount response below the token response
+      td.innerHTML += `<hr><div><b>/discount response</b></div>`;
+      renderJson(td, text);
+      return;
     }
 
-    const res = await fetch(url, { method: "GET", headers });
-    const text = await res.text();
-    renderJson(td, text);
+    // 9) Nested OK
+    if (id === "nested-ok-btn") {
+      const r = await apiGetJson(userUrl("nested"));
+      renderJson(td, r.text);
+      const tok = r.ok ? r.json?.data?.token : null;
+
+      const text = await apiGetDiscount({ Authorization: "Bearer " + (tok || "") });
+      td.innerHTML += `<hr><div><b>/discount response</b></div>`;
+      renderJson(td, text);
+      return;
+    }
+
+    // 10) Nested expired
+    if (id === "nested-expired-btn") {
+      const r = await apiGetJson(userUrl("nested_expired"));
+      renderJson(td, r.text);
+      const tok = r.ok ? r.json?.data?.token : null;
+
+      const text = await apiGetDiscount({ Authorization: "Bearer " + (tok || "") });
+      td.innerHTML += `<hr><div><b>/discount response</b></div>`;
+      renderJson(td, text);
+      return;
+    }
+
+    // ===== Internal claims validation buttons =====
+    // Each: get token from /user?mode=... and then call /discount with it
+
+    if (id === "claim-bad-sub-btn") {
+      await claimScenario(td, "bad_sub");
+      return;
+    }
+
+    if (id === "claim-bad-iss-btn") {
+      await claimScenario(td, "bad_iss");
+      return;
+    }
+
+    if (id === "claim-no-name-email-btn") {
+      await claimScenario(td, "no_name_email");
+      return;
+    }
+
+    if (id === "claim-bad-email-btn") {
+      await claimScenario(td, "bad_email");
+      return;
+    }
+
+    if (id === "claim-email-only-btn") {
+      await claimScenario(td, "email_only");
+      return;
+    }
+
+    if (id === "claim-name-only-btn") {
+      await claimScenario(td, "name_only");
+      return;
+    }
 
   } catch (err) {
     td.innerHTML = `<pre>JS error: ${err}</pre>`;
   }
+}
+
+async function claimScenario(td, mode) {
+  const r = await apiGetJson(userUrl(mode));
+  renderJson(td, r.text);
+
+  const tok = r.ok ? r.json?.data?.token : null;
+
+  const text = await apiGetDiscount({ Authorization: "Bearer " + (tok || "") });
+  td.innerHTML += `<hr><div><b>/discount response</b></div>`;
+  renderJson(td, text);
 }
